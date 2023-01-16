@@ -4,7 +4,7 @@ Small test app for graalvm with clojure and jena (java imports?)
 
 Run it with ~clojure -M:run-m~ and watch it spit out the pretty printed Sparql update statement.
 
-Build it with ~clojure -M:native-image,~ run it and get:
+Build it with ~clojure -M:native-image~ run it and get:
 
 #+begin_src  
 $ ./jena-graal 
