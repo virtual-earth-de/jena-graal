@@ -1,3 +1,5 @@
 [{"name": "java.lang.reflect.AccessibleObject",
   "methods" : [{"name":"canAccess"}],
-  "comment": "This is from https://github.com/borkdude/clj-reflector-graal-java11-fix"}]
+  "comment": "This is from https://github.com/borkdude/clj-reflector-graal-java11-fix"},
+ {"name": "org.apache.jena.update.UpdateFactory",
+  "methods": [{"name":"create"}]}]

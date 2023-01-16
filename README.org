@@ -4,6 +4,7 @@ Small test app for graalvm with clojure and jena (java imports?)
 
 Run it with ~clojure -M:run-m~ and watch it spit out the pretty printed Sparql update statement.
 
+** Problems with jena
 Build it with ~clojure -M:native-image~ run it and get:
 
 #+begin_src  
@@ -22,3 +23,68 @@ Exception in thread "main" java.lang.ClassNotFoundException: org.apache.jena.upd
 #+end_src
 
 ~–link-at-buid-time~ or ~–initiialize-at-build-time~ do not seem to influence this…
+
+*** Solution for this: add reflection
+
+#+begin_src js
+[{"name": "java.lang.reflect.AccessibleObject",
+  "methods" : [{"name":"canAccess"}],
+  "comment": "This is from https://github.com/borkdude/clj-reflector-graal-java11-fix"},
+ {"name": "org.apache.jena.update.UpdateFactory",
+  "methods": [{"name":"create"}]}]
+#+end_src
+
+** Now a problem with xerces
+
+#+begin_src 
+mathiasp:INDIGO/rules-rdfox/jena-graal% ./jena-graal                                      
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Exception in thread "main" java.lang.ExceptionInInitializerError
+        at org.apache.jena.ext.xerces.impl.dv.SchemaDVFactory.<clinit>(SchemaDVFactory.java:45)
+        at org.apache.jena.datatypes.xsd.XSDDatatype.<init>(XSDDatatype.java:230)
+        at org.apache.jena.datatypes.xsd.XSDDatatype.<init>(XSDDatatype.java:242)
+        at org.apache.jena.datatypes.xsd.impl.XSDFloat.<init>(XSDFloat.java:49)
+        at org.apache.jena.datatypes.xsd.XSDDatatype.<clinit>(XSDDatatype.java:54)
+        at org.apache.jena.sparql.function.StandardFunctions.loadStdDefs(StandardFunctions.java:62)
+        at org.apache.jena.sparql.function.FunctionRegistry.init(FunctionRegistry.java:48)
+        at org.apache.jena.query.ARQ.init(ARQ.java:641)
+        at org.apache.jena.sparql.system.InitARQ.start(InitARQ.java:29)
+        at org.apache.jena.base.module.Subsystem.lambda$initialize$2(Subsystem.java:117)
+        at java.base@19.0.1/java.util.ArrayList.forEach(ArrayList.java:1511)
+        at org.apache.jena.base.module.Subsystem.forEach(Subsystem.java:193)
+        at org.apache.jena.base.module.Subsystem.forEach(Subsystem.java:169)
+        at org.apache.jena.base.module.Subsystem.initialize(Subsystem.java:115)
+        at org.apache.jena.sys.JenaSystem.init(JenaSystem.java:88)
+        at org.apache.jena.graph.NodeFactory.<clinit>(NodeFactory.java:32)
+        at org.apache.jena.rdf.model.impl.ResourceImpl.fresh(ResourceImpl.java:140)
+        at org.apache.jena.rdf.model.impl.ResourceImpl.<init>(ResourceImpl.java:86)
+        at org.apache.jena.rdf.model.ResourceFactory$Impl.createResource(ResourceFactory.java:313)
+        at org.apache.jena.rdf.model.ResourceFactory.createResource(ResourceFactory.java:92)
+        at org.apache.jena.vocabulary.RDFS.resource(RDFS.java:35)
+        at org.apache.jena.vocabulary.RDFS$Init.Class(RDFS.java:68)
+        at org.apache.jena.vocabulary.RDFS.<clinit>(RDFS.java:40)
+        at org.apache.jena.shared.PrefixMapping.<clinit>(PrefixMapping.java:219)
+        at java.base@19.0.1/java.lang.Class.ensureInitialized(DynamicHub.java:528)
+        at org.apache.jena.sparql.core.Prologue.<init>(Prologue.java:39)
+        at org.apache.jena.update.UpdateRequest.<init>(UpdateRequest.java:46)
+        at org.apache.jena.update.UpdateFactory.create(UpdateFactory.java:74)
+        at org.apache.jena.update.UpdateFactory.create(UpdateFactory.java:64)
+        at java.base@19.0.1/java.lang.reflect.Method.invoke(Method.java:578)
+        at clojure.lang.Reflector.invokeMatchingMethod(Reflector.java:167)
+        at clojure.lang.Reflector.invokeStaticMethod(Reflector.java:332)
+        at de.virtual_earth.jena_graal$check_syntax.invokeStatic(jena_graal.clj:16)
+        at de.virtual_earth.jena_graal$_main.invokeStatic(jena_graal.clj:45)
+        at de.virtual_earth.jena_graal$_main.doInvoke(jena_graal.clj:45)
+        at clojure.lang.RestFn.invoke(RestFn.java:397)
+        at clojure.lang.AFn.applyToHelper(AFn.java:152)
+        at clojure.lang.RestFn.applyTo(RestFn.java:132)
+        at de.virtual_earth.jena_graal.main(Unknown Source)
+Caused by: java.lang.RuntimeException: internal error
+        at org.apache.jena.ext.xerces.impl.dv.xs.XSSimpleTypeDecl.applyFacets1(XSSimpleTypeDecl.java:768)
+        at org.apache.jena.ext.xerces.impl.dv.xs.BaseSchemaDVFactory.createBuiltInTypes(BaseSchemaDVFactory.java:205)
+        at org.apache.jena.ext.xerces.impl.dv.xs.SchemaDVFactoryImpl.createBuiltInTypes(SchemaDVFactoryImpl.java:44)
+        at org.apache.jena.ext.xerces.impl.dv.xs.SchemaDVFactoryImpl.<clinit>(SchemaDVFactoryImpl.java:39)
+        ... 39 more
+#+end_src

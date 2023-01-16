@@ -4,6 +4,8 @@
            (org.apache.jena.query QueryParseException))
   (:gen-class))
 
+(set! *warn-on-reflection* true)
+
 (defn check-syntax
   "check if Sparql Update statement has correct syntax.
   returns map with either {:ok? true :prettyQuery <prettyPrintedQuery>}
@@ -45,3 +47,10 @@
   (println
    (check-syntax query)))
 
+
+(comment
+
+  (UpdateFactory.)
+
+  (check-syntax query)
+  )
