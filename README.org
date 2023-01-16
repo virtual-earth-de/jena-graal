@@ -1,0 +1,24 @@
+# de.virtual-earth/jena-graal
+
+Small test app for graalvm with clojure and jena (java imports?)
+
+Run it with ~clojure -M:run-m~ and watch it spit out the pretty printed Sparql update statement.
+
+Build it with ~clojure -M:native-image,~ run it and get:
+
+#+begin_src  
+$ ./jena-graal 
+Exception in thread "main" java.lang.ClassNotFoundException: org.apache.jena.update.UpdateFactory
+        at java.base@19.0.1/java.lang.Class.forName(DynamicHub.java:1132)
+        at clojure.lang.RT.classForName(RT.java:2209)
+        at clojure.lang.RT.classForName(RT.java:2218)
+        at de.virtual_earth.jena_graal$check_syntax.invokeStatic(jena_graal.clj:14)
+        at de.virtual_earth.jena_graal$_main.invokeStatic(jena_graal.clj:43)
+        at de.virtual_earth.jena_graal$_main.doInvoke(jena_graal.clj:43)
+        at clojure.lang.RestFn.invoke(RestFn.java:397)
+        at clojure.lang.AFn.applyToHelper(AFn.java:152)
+        at clojure.lang.RestFn.applyTo(RestFn.java:132)
+        at de.virtual_earth.jena_graal.main(Unknown Source)
+#+end_src
+
+~–link-at-buid-time~ or ~–initiialize-at-build-time~ do not seem to influence this…

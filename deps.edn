@@ -1,0 +1,21 @@
+{:paths ["src" "resources"]
+ :deps {org.clojure/clojure {:mvn/version "1.11.1"}
+        com.github.clj-easy/graal-build-time {:mvn/version "0.1.4"}
+        org.apache.jena/jena-arq {:mvn/version "4.3.1"
+                                  :exclusions [com.fasterxml.jackson.core/jackson.core]}
+        }
+ :aliases
+ {:run-m {:main-opts ["-m" "de.virtual-earth.jena-graal"]}
+  :native-image
+  {:main-opts ["-m" "clj.native-image" "de.virtual-earth.jena-graal"
+               "--initialize-at-build-time=org.apache.jena.update.UpdateFactory"
+               "--link-at-build-time=org.apache.jena.update.UpdateFactory"
+               "--report-unsupported-elements-at-runtime"
+               "-H:Name=jena-graal"
+               "-H:+ReportExceptionStackTraces"
+               "-H:ReflectionConfigurationFiles=reflection.json"]
+   :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
+   :extra-deps
+   {clj.native-image/clj.native-image
+    {:git/url "https://github.com/taylorwood/clj.native-image.git"
+     :sha "4604ae76855e09cdabc0a2ecc5a7de2cc5b775d6"}}}}}
